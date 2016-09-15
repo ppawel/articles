@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -85,13 +86,20 @@ public class ArticleService {
     }
 
     /**
-     * Finds articles by given criteria.
+     * Finds articles by given criteria. If author is given then it takes precedence over from/to parameters.
+     * Otherwise from/to must both be defined.
      *
      * @param author author to use
+     * @param from   from date to use
+     * @param to     from date to use
      * @return list of matching articles
      */
-    public List<Article> findByAuthors(String author) {
-        return repository.findByAuthors(author);
+    public List<Article> find(String author, Date from, Date to) {
+        if (author != null) {
+            return repository.findByAuthors(author);
+        } else {
+            return repository.findByDatePublishedBetween(from, to);
+        }
     }
 
     /**

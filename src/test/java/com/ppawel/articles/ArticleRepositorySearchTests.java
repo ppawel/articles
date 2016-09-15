@@ -2,6 +2,7 @@ package com.ppawel.articles;
 
 import com.ppawel.articles.model.Article;
 import com.ppawel.articles.repository.ArticleRepository;
+import org.apache.commons.lang3.time.DateUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -9,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.util.Date;
 import java.util.List;
 
 import static org.hamcrest.Matchers.*;
@@ -49,6 +51,23 @@ public class ArticleRepositorySearchTests {
         result = repository.findByAuthors("author2");
         assertThat(result, hasSize(1));
         assertThat(result, everyItem(hasProperty("authors", hasItem("author2"))));
+    }
+
+    @Test
+    public void testFindByPeriod() {
+        Date now = new Date();
+        createArticles(now, 12);
+        createArticles(DateUtils.addMonths(now, 3), 1);
+        createArticles(DateUtils.addMonths(now, 6), 7);
+
+        List<Article> result = repository.findByDatePublishedBetween(now, DateUtils.addMonths(now, 12));
+        assertThat(result, hasSize(20));
+
+        result = repository.findByDatePublishedBetween(now, DateUtils.addMonths(now, 5));
+        assertThat(result, hasSize(13));
+
+        result = repository.findByDatePublishedBetween(DateUtils.addMonths(now, -15), DateUtils.addMonths(now, -5));
+        assertThat(result, hasSize(0));
     }
 
     @Test
@@ -127,10 +146,20 @@ public class ArticleRepositorySearchTests {
     protected void createArticles(String author, String keyword, int count) {
         for (int i = 0; i < count; i++) {
             Article article = new Article();
+            article.setDatePublished(new Date());
             article.setHeader("article" + i);
             article.setContent("some content" + keyword);
             article.addAuthors(author, "some other one " + count);
             article.addKeywords(keyword, "other" + count);
+            repository.save(article);
+        }
+    }
+
+    protected void createArticles(Date date, int count) {
+        for (int i = 0; i < count; i++) {
+            Article article = new Article();
+            article.setHeader("article" + i);
+            article.setDatePublished(date);
             repository.save(article);
         }
     }

@@ -8,7 +8,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * REST API for articles, uses service layer to perform CRUD and search operations.
@@ -64,10 +66,17 @@ public class ArticleResource {
 
     /**
      * List articles by author or by period, depending on query parameters.
+     * <p>
+     * Note: from/to parameters given as Unix epoch timestamp.
      */
     @RequestMapping(path = "/api/articles", method = RequestMethod.GET)
-    public List<Article> listArticles(@RequestParam(name = "author", required = false) String author) {
-        return service.findByAuthors(author);
+    public List<Article> listArticles(@RequestParam(name = "author", required = false) String author,
+                                      @RequestParam(name = "from", required = false) Optional<Long> from,
+                                      @RequestParam(name = "to", required = false) Optional<Long> to
+    ) {
+        Optional<Date> fromDate = from.map(Date::new);
+        Optional<Date> toDate = to.map(Date::new);
+        return service.find(author, fromDate.orElse(null), toDate.orElse(null));
     }
 
     /**

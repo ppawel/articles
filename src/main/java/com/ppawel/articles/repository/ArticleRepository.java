@@ -2,9 +2,12 @@ package com.ppawel.articles.repository;
 
 import com.ppawel.articles.model.Article;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.jpa.repository.Temporal;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
 
+import javax.persistence.TemporalType;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -21,6 +24,18 @@ public interface ArticleRepository extends CrudRepository<Article, Long> {
      * @return matching articles
      */
     List<Article> findByAuthors(String author);
+
+    /**
+     * Lists articles by given from-to period.
+     * * <p>
+     * Note: This method is named according to Spring Data convention allowing auto-generating implementation.
+     *
+     * @param from from date
+     * @param to   to date
+     * @return matching articles
+     */
+    List<Article> findByDatePublishedBetween(@Temporal(TemporalType.TIMESTAMP) Date from,
+                                             @Temporal(TemporalType.TIMESTAMP) Date to);
 
     /**
      * Finds articles by using simple wildcard matching on article text fields and also exact matching against

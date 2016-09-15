@@ -14,6 +14,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.util.Date;
+
 import static io.restassured.RestAssured.*;
 import static org.hamcrest.core.IsEqual.equalTo;
 
@@ -57,6 +59,29 @@ public class RestApiTests {
                 .body("size()", equalTo(7));
     }
 
+
+    @Test
+    public void testListByPeriod() {
+        createArticles("author1", "aaa", 12);
+        createArticles("author2", "bbb", 1);
+        createArticles("some other one", "ccc", 7);
+
+        disableAuthentication();
+
+        // All articles created just now
+        given().param("from", System.currentTimeMillis() - 1000 * 60).param("to", System.currentTimeMillis() + 1000 * 60)
+                .get("/api/articles")
+                .then()
+                .statusCode(HttpStatus.OK.value())
+                .body("size()", equalTo(20));
+
+        // Period from the past - should be no matching
+        given().param("from", System.currentTimeMillis() - 1000 * 60).param("to", System.currentTimeMillis() - 1000 * 30)
+                .get("/api/articles")
+                .then()
+                .statusCode(HttpStatus.OK.value())
+                .body("size()", equalTo(0));
+    }
 
     @Test
     public void testSearch() {
@@ -114,6 +139,7 @@ public class RestApiTests {
     protected void createArticles(String author, String keyword, int count) {
         for (int i = 0; i < count; i++) {
             Article article = new Article();
+            article.setDatePublished(new Date());
             article.setHeader("article" + i);
             article.setContent("some content" + keyword);
             article.addAuthors(author, "some other one " + count);

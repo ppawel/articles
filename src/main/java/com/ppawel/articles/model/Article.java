@@ -28,6 +28,7 @@ public class Article {
     @Column
     private String content;
 
+    @Temporal(TemporalType.TIMESTAMP)
     @Column
     private Date datePublished;
 
@@ -103,5 +104,19 @@ public class Article {
         this.keywords = keywords;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
 
+        Article article = (Article) o;
+
+        return id != null ? id.equals(article.id) : article.id == null;
+
+    }
+
+    @Override
+    public int hashCode() {
+        return id != null ? id.hashCode() : 0;
+    }
 }
