@@ -1,4 +1,12 @@
-# Articles
+## Technologies
+
+* __Spring Framework__ + __Spring Boot__ - well, what else? :-)
+
+* __Spring Data JPA__ - for rapid development of the data access layer. I chose to map authors and keywords as `List<String>` instead of doing full-blown data modeling to focus on other aspects of the task but keep in mind that even with this simple `@ElementCollection@ mapping those are kept in a separate table so refactoring / expanding the model and JPA mapping shouldn't be a big problem in the future.
+
+* __Spring Security__ - HTTP Basic security for editor-only parts of the API and for the management API. Method security for the service layer (see `ArticleService`).
+
+* __REST Assured__ - for REST API testing (see `RestApiTests`).
 
 ## System requirements
 
@@ -18,7 +26,7 @@ This builds a Spring Boot executable jar file with embedded Tomcat.
 
 This should start the embedded Tomcat and the application will be available at http://localhost:8080/.
 
-## Examples with curl
+## Articles API Examples
 
 ### Creating an article
 
