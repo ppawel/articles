@@ -6,9 +6,6 @@ import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.autoconfigure.security.SecurityAutoConfiguration;
-import org.springframework.boot.autoconfigure.web.WebMvcAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
@@ -18,12 +15,11 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
 /**
- * Tests for the data access layer - {@link ArticleRepository}.
+ * Tests for the data access layer - {@link ArticleRepository} - CRUD operations.
  */
 @RunWith(SpringRunner.class)
-@SpringBootTest
-@EnableAutoConfiguration(exclude = {SecurityAutoConfiguration.class, WebMvcAutoConfiguration.class})
-public class ArticleRepositoryTest {
+@SpringBootTest(classes = DataAccessTestContext.class)
+public class ArticleRepositoryCrudTests {
 
     @Autowired
     private ArticleRepository repository;
