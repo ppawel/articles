@@ -2,7 +2,7 @@ package com.ppawel.articles;
 
 import com.ppawel.articles.model.Article;
 import com.ppawel.articles.repository.ArticleRepository;
-import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,7 +24,7 @@ public class ArticleRepositorySearchTests {
     @Autowired
     private ArticleRepository repository;
 
-    @After
+    @Before
     public void before() {
         repository.deleteAll();
     }
