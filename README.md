@@ -8,6 +8,8 @@
 
 * __REST Assured__ - for REST API testing (see `RestApiTests`).
 
+* __HyperSQL (HSQLDB)__ - as an embedded RDBMS.
+
 ## System requirements
 
 To build the code you need JDK 8 and Maven >= 3.2.
