@@ -1,7 +1,8 @@
 package com.ppawel.articles.rest;
 
 import com.ppawel.articles.model.Article;
-import com.ppawel.articles.repository.ArticleRepository;
+import com.ppawel.articles.service.ArticleNotFoundException;
+import com.ppawel.articles.service.ArticleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -10,35 +11,36 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 /**
- * REST API for articles, uses data access layer directly but usually it would go through service->data access
- * or even something like facade->service->data access layers instead.
+ * REST API for articles, uses service layer to perform CRUD and search operations.
  */
 @RestController
 public class ArticleResource {
 
     @Autowired
-    private ArticleRepository repository;
+    private ArticleService service;
+
+    /**
+     * Return HTTP status 404 when {@link ArticleNotFoundException} occurs.
+     */
+    @ExceptionHandler(ArticleNotFoundException.class)
+    public ResponseEntity articleNotFound() {
+        return ResponseEntity.notFound().build();
+    }
 
     /**
      * Returns a single article with given id.
      */
     @RequestMapping(path = "/api/articles/{id}", method = RequestMethod.GET)
-    public Article getArticle(@PathVariable Long id) {
-        return repository.findOne(id);
+    public Article getArticle(@PathVariable Long id) throws ArticleNotFoundException {
+        return service.get(id);
     }
 
     /**
      * Deletes a single article with given id.
      */
     @RequestMapping(path = "/api/articles/{id}", method = RequestMethod.DELETE)
-    public ResponseEntity deleteArticle(@PathVariable Long id) {
-        // Check if exists
-        if (!repository.exists(id)) {
-            return ResponseEntity.notFound().build();
-        }
-
-        // Delete
-        repository.delete(id);
+    public ResponseEntity deleteArticle(@PathVariable Long id) throws ArticleNotFoundException {
+        service.delete(id);
         return ResponseEntity.ok().build();
     }
 
@@ -46,14 +48,8 @@ public class ArticleResource {
      * Updates a single article with given id and returns updated instance or 404 when id not found.
      */
     @RequestMapping(path = "/api/articles/{id}", method = RequestMethod.POST)
-    public ResponseEntity updateArticle(@RequestBody Article article) {
-        // Check if exists
-        if (!repository.exists(article.getId())) {
-            return ResponseEntity.notFound().build();
-        }
-
-        // Update
-        Article updated = repository.save(article);
+    public ResponseEntity updateArticle(@RequestBody Article article) throws ArticleNotFoundException {
+        Article updated = service.update(article);
         return ResponseEntity.ok().body(updated);
     }
 
@@ -62,7 +58,7 @@ public class ArticleResource {
      */
     @RequestMapping(path = "/api/articles", method = RequestMethod.PUT)
     public ResponseEntity<Article> createArticle(@RequestBody Article article) {
-        Article created = repository.save(article);
+        Article created = service.create(article);
         return new ResponseEntity(created, HttpStatus.CREATED);
     }
 
@@ -71,7 +67,7 @@ public class ArticleResource {
      */
     @RequestMapping(path = "/api/articles", method = RequestMethod.GET)
     public List<Article> listArticles(@RequestParam(name = "author", required = false) String author) {
-        return repository.findByAuthors(author);
+        return service.findByAuthors(author);
     }
 
     /**
@@ -79,6 +75,6 @@ public class ArticleResource {
      */
     @RequestMapping(path = "/api/search", method = RequestMethod.GET)
     public List<Article> search(@RequestParam String keyword) {
-        return repository.search(keyword);
+        return service.search(keyword);
     }
 }

@@ -14,8 +14,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import static io.restassured.RestAssured.basic;
-import static io.restassured.RestAssured.given;
+import static io.restassured.RestAssured.*;
 import static org.hamcrest.core.IsEqual.equalTo;
 
 /**
@@ -50,11 +49,64 @@ public class RestApiTests {
         createArticles("author2", "bbb", 1);
         createArticles("some other one", "ccc", 7);
 
+        disableAuthentication();
         given().param("author", "some other one")
                 .get("/api/articles")
                 .then()
                 .statusCode(HttpStatus.OK.value())
                 .body("size()", equalTo(7));
+    }
+
+
+    @Test
+    public void testSearch() {
+        createArticles("author1", "aaa", 12);
+        createArticles("author2", "bbb", 1);
+        createArticles("some other", "aaa", 7);
+
+        disableAuthentication();
+        given().param("keyword", "aaa")
+                .get("/api/search")
+                .then()
+                .statusCode(HttpStatus.OK.value())
+                .body("size()", equalTo(19));
+    }
+
+    @Test
+    public void testDelete404() {
+        given().delete("/api/articles/123").then().statusCode(HttpStatus.NOT_FOUND.value());
+    }
+
+    @Test
+    public void testUpdate404() {
+        given().delete("/api/articles/123").then().statusCode(HttpStatus.NOT_FOUND.value());
+    }
+
+    @Test
+    public void testGet404() {
+        given().get("/api/articles/123").then().statusCode(HttpStatus.NOT_FOUND.value());
+
+        // Again with disabled login
+        disableAuthentication();
+        given().get("/api/articles/123").then().statusCode(HttpStatus.NOT_FOUND.value());
+    }
+
+    @Test
+    public void testDelete401() {
+        disableAuthentication();
+        given().delete("/api/articles/123").then().statusCode(HttpStatus.UNAUTHORIZED.value());
+    }
+
+    @Test
+    public void testUpdate401() {
+        disableAuthentication();
+        given().post("/api/articles/123").then().statusCode(HttpStatus.UNAUTHORIZED.value());
+    }
+
+    @Test
+    public void testCreate401() {
+        disableAuthentication();
+        given().put("/api/articles").then().statusCode(HttpStatus.UNAUTHORIZED.value());
     }
 
     // Helper methods
@@ -86,6 +138,6 @@ public class RestApiTests {
      * Disables auth for RestAssured requests.
      */
     protected void disableAuthentication() {
-        RestAssured.authentication = null;
+        RestAssured.authentication = DEFAULT_AUTH;
     }
 }
