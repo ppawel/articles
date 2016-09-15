@@ -63,6 +63,28 @@ public class ArticleRepositorySearchTests {
     }
 
     @Test
+    public void testSearchByKeywordOnContent() {
+        createArticles("author1", "aaa", 12);
+        createArticles("author2", "bbb", 1);
+        createArticles("some other one", "ccc", 7);
+
+        // Every test article has "content<keyword>" in the content
+        List<Article> result = repository.search("contentccc");
+        assertThat(result, hasSize(7));
+    }
+
+    @Test
+    public void testSearchByKeywordOnDescription() {
+        createArticles("author1", "aaa", 12);
+        createArticles("author2", "aaa", 1);
+        createArticles("author2", "bbb", 10);
+
+        // Every test article has "short<keyword>" in the content
+        List<Article> result = repository.search("contentaaa");
+        assertThat(result, hasSize(13));
+    }
+
+    @Test
     public void testSearchByKeywordOnlyKeyword() {
         createArticles("author1", "aaa", 12);
         createArticles("author2", "bbb", 1);
@@ -75,6 +97,9 @@ public class ArticleRepositorySearchTests {
         result = repository.search("ccc");
         assertThat(result, hasSize(7));
         assertThat(result, everyItem(hasProperty("keywords", hasItem("ccc"))));
+
+        result = repository.search("ddd");
+        assertThat(result, hasSize(0));
     }
 
     @Test
@@ -103,6 +128,7 @@ public class ArticleRepositorySearchTests {
         for (int i = 0; i < count; i++) {
             Article article = new Article();
             article.setHeader("article" + i);
+            article.setContent("some content" + keyword);
             article.addAuthors(author, "some other one " + count);
             article.addKeywords(keyword, "other" + count);
             repository.save(article);
