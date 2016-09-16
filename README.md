@@ -44,7 +44,7 @@ This should start the embedded Tomcat and the application will be available at h
 
 ### Deleting an article
 
-`curl -v -X DELETE --user editor:s3cr3t -H "Content-Type: application/json" http://localhost:8080/api/articles/1`
+`curl -v -X DELETE --user editor:s3cr3t http://localhost:8080/api/articles/1`
 
 ## Monitoring API Examples
 
